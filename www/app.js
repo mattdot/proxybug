@@ -29,6 +29,7 @@ var app = http.createServer(function (req, res) {
 });
 
 var io = require('socket.io')(app);
+//io.set('origins', '*:*');
 
 io.on('connection', function (socket) {
   rc.on("subscribe", function(channel, count) {

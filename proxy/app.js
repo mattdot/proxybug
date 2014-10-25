@@ -27,7 +27,10 @@ function truncate(str) {
 
 function logRequest(req) {
 	var loggedText = req.method + ' ' + truncate(req.url);
-        publisher.publish("proxied", loggedText);
+	publisher.publish("proxied", {
+	    url: req.url,
+        method: req.method
+	});
 	console.log(loggedText);
 	//for (var i in req.headers)
 	//	console.log(' * ' + i + ': ' + truncate(req.headers[i]));
