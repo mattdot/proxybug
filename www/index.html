@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h1>proxybug</h1>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io('http://proxybug-dev.cloudapp.net');
+  socket.on('news', function (data) {
+    console.log(data);
+  });
+</script>
+</body>
+</html>
