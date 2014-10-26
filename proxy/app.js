@@ -64,7 +64,9 @@ function authenticate(req, res) {
 	
 	var proxyAuth = req.headers["proxy-authorization"];
 	if(proxyAuth) {
-		var b = new Buffer(proxyAuth, 'base64')
+		//todo: make this much more robust!
+		var encoded = proxyAuth.splity(' ')[1];
+		var b = new Buffer(encoded, 'base64');
 		var raw = b.toString();
 		var parts = raw.split(':');
 		
