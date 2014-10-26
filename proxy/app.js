@@ -33,7 +33,7 @@ function logRequest(req, res) {
 		},
 		response : {
 			status : res.statusCode,
-			contentType : res.getHeader('content-type')
+			contentType : res.headers['content-length']
 		}
 	}));
 	console.log(loggedText);
