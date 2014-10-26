@@ -32,7 +32,8 @@ function logRequest(req, res) {
         	method: req.method
 		},
 		response : {
-			
+			status : res.statusCode,
+			contentType : res.getHeader('content-type')
 		}
 	}));
 	console.log(loggedText);
@@ -41,8 +42,6 @@ function logRequest(req, res) {
 }
 
 var server = http.createServer(function(req, res){
-	logRequest(req);
-
 	var uri = url.parse(req.url);
 	var forwardOptions = {
 		hostname : uri.hostname,
@@ -53,6 +52,8 @@ var server = http.createServer(function(req, res){
 	
 	var freq = http.request(forwardOptions, function(fres) {
 		fres.pipe(res, { end : true });
+		
+		logRequest(req, freq);
 	});
 	
 	freq.on('error', function(error) {
