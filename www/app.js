@@ -1,13 +1,19 @@
 var http = require('http');
-var fs = require('fs');
+var express = require('express');
 var redis = require('redis');
+var path = require('path');
+var socketio = require('socket.io');
 
+//get environment variables
+var port = process.env.PORT || 80;
 var redisPort = process.env.REDIS_PORT || 6379;
 var redisHost = process.env.REDIS_HOST || "proxybug.redis.cache.windows.net";
 var redisPassword = process.env.REDIS_PASSWORD || "kCr/7K3pvhA/M68ewl47A3hQmhDskpBscoke0M2yH6o=";
 
-redis.debug_mode = true;
+//debug switches
+redis.debug_mode = false;
 
+//connect to redis
 var rc = redis.createClient(redisPort, redisHost);
 rc.auth(redisPassword, function() {
   console.log('connected to redis');
@@ -15,27 +21,21 @@ rc.auth(redisPassword, function() {
 
 console.log('starting up...');
 
-var app = http.createServer(function (req, res) {
-  fs.readFile(__dirname + '/index.html',
-  function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
-    }
+var app = express();
+var server = http.createServer(app);
+var io = socketio.listen(server);
+server.listen(port);
 
-    res.writeHead(200);
-    res.end(data);
-  });
-});
-
-var io = require('socket.io')(app);
 //io.set('origins', '*:*');
+//app.use('/', express.static(path.join(__dirname, '/public/index.html')));
 
 io.on('connection', function (socket) {
+  console.log('client connected');
   rc.on("subscribe", function(channel, count) {
   });
 
   rc.on("message", function(channel, message) {
+    console.log(message);
   	socket.emit('news', message);
   });
 
@@ -47,4 +47,3 @@ io.on('connection', function (socket) {
   rc.subscribe("proxied");
 });
 
-app.listen(80);

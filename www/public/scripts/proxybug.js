@@ -29,14 +29,14 @@ pbapp.controller('TrafficMonitor', ['$scope', function ($scope) {
 
     function receiveItem(data) {
         $scope.items.push(data);
-
+        $scope.$apply();
     };
 
-    var socket = io('http://proxybug-dev.cloudapp.net');
+    var socket = io.connect(window.location.protocol + '//' + window.location.host);
     socket.on('news', function (data) {
         console.log(data);
         receiveItem(data);
-        $scope.$apply();
+        
     });
 
     setInterval(function () {

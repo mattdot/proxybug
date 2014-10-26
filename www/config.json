@@ -5,5 +5,8 @@
   "description": "Node.js proxy bugger",
   "author": "Matt Dotson <mdotson@microsoft.com>",
   "dependencies": {
+    "redis" : "*",
+    "socket.io" : "*",
+    "express" : "*"
   }
 }
