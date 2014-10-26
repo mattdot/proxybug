@@ -36,7 +36,6 @@ io.on('connection', function (socket) {
   });
 
   rc.on("message", function(channel, message) {
-    console.log(message);
     var obj = JSON.parse(message);
     console.log(obj);
   	socket.emit('news', obj);

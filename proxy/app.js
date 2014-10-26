@@ -8,7 +8,6 @@ var redis = require('redis');
 
 var port = process.env.PORT || 8080;
 var host = process.env.HOST || '0.0.0.0';
-
 var redisHost = process.env.REDIS_HOST || "proxybug.redis.cache.windows.net";
 var redisPort = process.env.REDIS_PORT || 6379;
 var redisPassword = process.env.REDIS_PASSWORD || "kCr/7K3pvhA/M68ewl47A3hQmhDskpBscoke0M2yH6o=";
@@ -25,11 +24,16 @@ function truncate(str) {
 	return (str.length >= maxLength ? str.substring(0,maxLength) + '...' : str);
 }
 
-function logRequest(req) {
+function logRequest(req, res) {
 	var loggedText = req.method + ' ' + truncate(req.url);
 	publisher.publish("proxied", JSON.stringify({
-	    url: req.url,
-        method: req.method
+		request : {
+	    	url: req.url,
+        	method: req.method
+		},
+		response : {
+			
+		}
 	}));
 	console.log(loggedText);
 	//for (var i in req.headers)
@@ -39,20 +43,22 @@ function logRequest(req) {
 var server = http.createServer(function(req, res){
 	logRequest(req);
 
-	  var uri = url.parse(req.url);
-	  var forwardOptions = {
+	var uri = url.parse(req.url);
+	var forwardOptions = {
 		hostname : uri.hostname,
 		path: uri.path,
 		port: uri.port || 80,
 		method: uri.method	
-	  };
+	};
 	
 	var freq = http.request(forwardOptions, function(fres) {
 		fres.pipe(res, { end : true });
 	});
+	
 	freq.on('error', function(error) {
 		console.log('$$$$$$$$$$$$' + error);
 	});
+	
 	req.pipe(freq, {end : true});
 });
 
