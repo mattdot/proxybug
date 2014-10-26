@@ -36,7 +36,6 @@ pbapp.controller('TrafficMonitor', ['$scope', function ($scope) {
     socket.on('news', function (data) {
         console.log(data);
         receiveItem(data);
-        
     });
 
     setInterval(function () {

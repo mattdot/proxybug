@@ -32,11 +32,14 @@ server.listen(port);
 io.on('connection', function (socket) {
   console.log('client connected');
   rc.on("subscribe", function(channel, count) {
+    console.log('subscribed to ' + channel);
   });
 
   rc.on("message", function(channel, message) {
     console.log(message);
-  	socket.emit('news', message);
+    var obj = JSON.parse(message);
+    console.log(obj);
+  	socket.emit('news', obj);
   });
 
   socket.on("disconnect", function(reason) {
