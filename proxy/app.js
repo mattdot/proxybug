@@ -68,10 +68,15 @@ function authenticate(req, res) {
 		var raw = b.toString();
 		var parts = raw.split(':');
 		
+		console.log('encoded:' + proxyAuth + '\n');
+		console.log('raw: ' + raw + '\n');
+		
 		var user = {
 			username : parts[0],
 			password : parts[1]
 		};
+		
+		console.log(user);
 		
 		//todo:actually do authorization
 		var authorized = (user.password === 'password!');
@@ -80,6 +85,9 @@ function authenticate(req, res) {
 			console.log(user);
 			return user;
 		}
+	}
+	else {
+		console.log('no proxy-authorization header\n');
 	}
 	
 	res.writeHead(407, {
