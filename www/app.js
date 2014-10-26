@@ -26,6 +26,7 @@ var server = http.createServer(app);
 var io = socketio.listen(server);
 server.listen(port);
 
+
 //io.set('origins', '*:*');
 //app.use('/', express.static(path.join(__dirname, '/public/index.html')));
 
