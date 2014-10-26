@@ -13,8 +13,13 @@ html {
     overflow-y: scroll;
     overflow-x: hidden;
     display: block;
-    width: 800px;
+    width: 100%;
     background-color: #808080;
     height: 100%;
     font-size: 0.8em;
+}
+
+#traffic_table {
+    width: 100%;
+    overflow: hidden;
 }

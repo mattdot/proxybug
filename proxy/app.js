@@ -33,7 +33,8 @@ function logRequest(req, res) {
 		},
 		response : {
 			status : res.statusCode,
-			contentType : res.headers['content-length']
+			contentType : res.headers['content-type'],
+			size : res.headers['content-length']
 		}
 	}));
 	console.log(loggedText);
