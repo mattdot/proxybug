@@ -53,7 +53,7 @@ var server = http.createServer(function(req, res){
 	var freq = http.request(forwardOptions, function(fres) {
 		fres.pipe(res, { end : true });
 		
-		logRequest(req, freq);
+		logRequest(req, fres);
 	});
 	
 	freq.on('error', function(error) {
