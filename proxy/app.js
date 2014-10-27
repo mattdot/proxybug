@@ -5,6 +5,7 @@ var http = require('http');
 var net = require('net');
 var url = require('url');
 var redis = require('redis');
+var azure = require('azure-storage');
 
 var port = process.env.PORT || 8080;
 var host = process.env.HOST || '0.0.0.0';
@@ -19,6 +20,9 @@ var publisher = redis.createClient(redisPort, redisHost);
 publisher.auth(redisPassword, function() {
   console.log('connected to redis');
 });
+
+var retryOperations = new azure.ExponentialRetryPolicyFilter();
+var blobSvc = azure.createBlobService().withFilter(retryOperations);
 
 function truncate(str) {
 	var maxLength = 64;
@@ -57,12 +61,24 @@ function logRequest(req, res, identity) {
 		
 		//todo: write entry to docdb
 		//todo: write req/res to blob storage
+		blobSvc.createContainerIfNotExists(identity.username, function(error, result, response){
+  			if(!error) {
+    			// Container exists and allows 
+    			// anonymous read access to blob 
+    			// content and metadata within this container
+				var resblob = blobSvc.createBlob(identity.username, 'response_' + logEntry.key, azure.Constants.BlobConstants.BlobTypes.BLOCK);
+				res.pipe(resblob);
+				
+				var reqblob = blobSvc.createBlob(identity.username, 'r' + logEntry.key + '/request', azure.Constants.BlobConstants.BlobTypes.BLOCK);
+				res.pipe(reqblob);
+  			}
+		});
 	});
 }
 
 function logError(req, err, id) {
 	//todo: actually log the error
-	console.log('PROXY_ERROR:' + err);
+	console.log('PROXY_ERROR:' + err + ' ' + req.url);
 }
 
 /// <summary>

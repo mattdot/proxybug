@@ -11,7 +11,9 @@ var redisHost = process.env.REDIS_HOST || "proxybug.redis.cache.windows.net";
 var redisPassword = process.env.REDIS_PASSWORD || "kCr/7K3pvhA/M68ewl47A3hQmhDskpBscoke0M2yH6o=";
 
 //debug switches
-redis.debug_mode = false;
+redis.debug_mode = true;
+
+console.log('starting up...');
 
 //connect to redis
 var rc = redis.createClient(redisPort, redisHost);
@@ -19,7 +21,7 @@ rc.auth(redisPassword, function() {
   console.log('connected to redis');
 });
 
-console.log('starting up...');
+
 
 var app = express();
 var server = http.createServer(app);
@@ -28,7 +30,7 @@ server.listen(port);
 
 
 //io.set('origins', '*:*');
-//app.use('/', express.static(path.join(__dirname, '/public/index.html')));
+app.use(express.static(path.join(__dirname, '/public'), { index:['index.html'] } ));
 
 io.on('connection', function (socket) {
   console.log('client connected');
