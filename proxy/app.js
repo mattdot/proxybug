@@ -23,6 +23,7 @@ publisher.auth(redisPassword, function() {
   console.log('connected to redis');
 });
 
+console.log('connecting to storage account: ' + blobAccount);
 var retryOperations = new azure.ExponentialRetryPolicyFilter();
 var blobSvc = azure.createBlobService('', blobAccount, blobKey).withFilter(retryOperations);
 
