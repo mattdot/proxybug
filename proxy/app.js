@@ -13,6 +13,8 @@ var redisHost = process.env.REDIS_HOST || "proxybug.redis.cache.windows.net";
 var redisPort = process.env.REDIS_PORT || 6379;
 var redisPassword = process.env.REDIS_PASSWORD || "kCr/7K3pvhA/M68ewl47A3hQmhDskpBscoke0M2yH6o=";
 var proxyRealm = process.env.PROXY_REALM || "proxybug-dev.cloudapp.net";
+var blobAccount = process.env.AZURE_STORAGE_ACCOUNT;
+var blobKey = process.env.AZURE_STORAGE_ACCESS_KEY;
 
 redis.debug_mode = false;
 
@@ -22,7 +24,7 @@ publisher.auth(redisPassword, function() {
 });
 
 var retryOperations = new azure.ExponentialRetryPolicyFilter();
-var blobSvc = azure.createBlobService().withFilter(retryOperations);
+var blobSvc = azure.createBlobService('', blobAccount, blobKey).withFilter(retryOperations);
 
 function truncate(str) {
 	var maxLength = 64;
