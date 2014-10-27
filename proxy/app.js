@@ -30,7 +30,7 @@ function truncate(str) {
 /// and saves information to blob storage for
 /// </summary> 
 function logRequest(req, res, identity) {
-	redis.incr("reqkey", function(err, key) {
+	publisher.incr("reqkey", function(err, key) {
 		var logEntry = {
 			key : key,
 			identity : {
