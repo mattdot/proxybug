@@ -70,10 +70,12 @@ function logRequest(req, res, identity) {
     			// anonymous read access to blob 
     			// content and metadata within this container
 				
-				var resblob = blobSvc.createBlockBlobFromStream(identity.username, 'response_' + logEntry.key, res, logEntry.response.size, function (error){
+				var blobstream = blobSvc.createWriteStreamToBlockBlob(identity.username, 'response_' + logEntry.key);
+				res.pipe(blobstream, {end:true});
+				//var resblob = blobSvc.createBlockBlobFromStream(identity.username, 'response_' + logEntry.key, res, logEntry.response.size, function (error){
 					//todo: something here
-				});
-				res.pipe(resblob);
+				//});
+				//res.pipe(resblob, { end:true });
 				
 				//var reqblob = blobSvc.createBlob(identity.username, 'r' + logEntry.key + '/request', azure.Constants.BlobConstants.BlobTypes.BLOCK);
 				//res.pipe(reqblob);
