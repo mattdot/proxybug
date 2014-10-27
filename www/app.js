@@ -21,17 +21,16 @@ rc.auth(redisPassword, function() {
   console.log('connected to redis');
 });
 
-
-
 var app = express();
 var server = http.createServer(app);
 var io = socketio.listen(server);
-server.listen(port);
-
-
 //io.set('origins', '*:*');
 app.use(express.static(path.join(__dirname, '/public'), { index:['index.html'] } ));
 
+//start the server
+server.listen(port);
+
+//respond to websocket connections
 io.on('connection', function (socket) {
   console.log('client connected');
   rc.on("subscribe", function(channel, count) {
@@ -51,4 +50,3 @@ io.on('connection', function (socket) {
 
   rc.subscribe("proxied");
 });
-

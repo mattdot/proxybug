@@ -70,15 +70,11 @@ function logRequest(req, res, identity) {
     			// anonymous read access to blob 
     			// content and metadata within this container
 				
-				var blobstream = blobSvc.createWriteStreamToBlockBlob(identity.username, 'response_' + logEntry.key);
-				res.pipe(blobstream, {end:true});
-				//var resblob = blobSvc.createBlockBlobFromStream(identity.username, 'response_' + logEntry.key, res, logEntry.response.size, function (error){
-					//todo: something here
-				//});
-				//res.pipe(resblob, { end:true });
-				
-				//var reqblob = blobSvc.createBlob(identity.username, 'r' + logEntry.key + '/request', azure.Constants.BlobConstants.BlobTypes.BLOCK);
-				//res.pipe(reqblob);
+				var resstream = blobSvc.createWriteStreamToBlockBlob(identity.username, logEntry.key + '/response');
+				res.pipe(resstream, {end:true});
+
+				var reqstream = blobSvc.createWriteStreamToBlockBlob(identity.username, logEntry.key + '/request');
+				res.pipe(reqstream, {end:true});
   			}
 		});
 	});
@@ -140,8 +136,11 @@ var server = http.createServer(function(req, res){
 	//todo: prevent localhost or local to proxy
 	
 	var freq = http.request(forwardOptions, function(fres) {
+		//copy the response the proxy received to the response to the client
+		res.statusCode = fres.statusCode;
 		fres.pipe(res, { end : true });
 		
+		//log and broadcast the proxy traffic
 		logRequest(req, fres, id);
 	});
 	
