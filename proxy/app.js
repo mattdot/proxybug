@@ -25,7 +25,7 @@ publisher.auth(redisPassword, function() {
 
 console.log('connecting to storage account: ' + blobAccount);
 var retryOperations = new azure.ExponentialRetryPolicyFilter();
-var blobSvc = azure.createBlobService('', blobAccount, blobKey).withFilter(retryOperations);
+var blobSvc = azure.createBlobService(blobAccount, blobKey).withFilter(retryOperations);
 
 function truncate(str) {
 	var maxLength = 64;
@@ -69,11 +69,14 @@ function logRequest(req, res, identity) {
     			// Container exists and allows 
     			// anonymous read access to blob 
     			// content and metadata within this container
-				var resblob = blobSvc.createBlob(identity.username, 'response_' + logEntry.key, azure.Constants.BlobConstants.BlobTypes.BLOCK);
+				
+				var resblob = blobSvc.createBlockBlobFromStream(identity.username, 'response_' + logEntry.key, res, logEntry.response.size, function (error){
+					//todo: something here
+				});
 				res.pipe(resblob);
 				
-				var reqblob = blobSvc.createBlob(identity.username, 'r' + logEntry.key + '/request', azure.Constants.BlobConstants.BlobTypes.BLOCK);
-				res.pipe(reqblob);
+				//var reqblob = blobSvc.createBlob(identity.username, 'r' + logEntry.key + '/request', azure.Constants.BlobConstants.BlobTypes.BLOCK);
+				//res.pipe(reqblob);
   			}
 		});
 	});
