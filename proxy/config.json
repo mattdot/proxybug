@@ -1,0 +1,11 @@
+{
+  "name": "proxybug-proxy",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Node.js proxy bugger",
+  "author": "Matt Dotson <mdotson@microsoft.com>",
+  "dependencies": {
+    "redis" : "*",
+    "azure-storage" : "*"
+  }
+}

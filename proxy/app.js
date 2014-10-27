@@ -13,7 +13,7 @@ var redisPort = process.env.REDIS_PORT || 6379;
 var redisPassword = process.env.REDIS_PASSWORD || "kCr/7K3pvhA/M68ewl47A3hQmhDskpBscoke0M2yH6o=";
 var proxyRealm = process.env.PROXY_REALM || "proxybug-dev.cloudapp.net";
 
-redis.debug_mode = true;
+redis.debug_mode = false;
 
 var publisher = redis.createClient(redisPort, redisHost);
 publisher.auth(redisPassword, function() {
@@ -30,29 +30,31 @@ function truncate(str) {
 /// and saves information to blob storage for
 /// </summary> 
 function logRequest(req, res, identity) {
-	var logEntry = {
-		request : {
-	    	url: req.url,
-        	method: req.method,
-			headers: req.headers
-		},
-		response : {
-			status : res.statusCode,
-			contentType : res.headers['content-type'],
-			size : res.headers['content-length'],
-			headers: res.headers
-		}
-	};
-	
-	//for (var i in req.headers) {
-	//	console.log(' * ' + i + ': ' + truncate(req.headers[i]));
-	//}
-	
-	publisher.publish("proxied", JSON.stringify(logEntry));
-	console.log(logEntry.request.url);
-	
-	//todo: write entry to docdb
-	//todo: write req/res to blob storage
+	redis.incr("reqkey", function(err, key) {
+		var logEntry = {
+			key : key,
+			identity : {
+				username : identity.username
+			},
+			request : {
+		    	url: req.url,
+	        	method: req.method,
+				headers: req.headers
+			},
+			response : {
+				status : res.statusCode,
+				contentType : res.headers['content-type'],
+				size : res.headers['content-length'],
+				headers: res.headers
+			}
+		};
+			
+		publisher.publish("proxied", JSON.stringify(logEntry));
+		console.log(logEntry.request.url + '\n');
+		
+		//todo: write entry to docdb
+		//todo: write req/res to blob storage
+	});
 }
 
 function logError(req, err, id) {
@@ -60,8 +62,9 @@ function logError(req, err, id) {
 	console.log('PROXY_ERROR:' + err);
 }
 
-function authenticate(req, res) {
-	
+/// <summary>
+/// </summary>
+function authenticate(req, res) {	
 	var proxyAuth = req.headers["proxy-authorization"];
 	if(proxyAuth) {
 		//todo: make this much more robust!
