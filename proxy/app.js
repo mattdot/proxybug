@@ -137,7 +137,7 @@ var server = http.createServer(function(req, res){
 	
 	var freq = http.request(forwardOptions, function(fres) {
 		//copy the response the proxy received to the response to the client
-		res.statusCode = fres.statusCode;
+		res.writeHead(fres.statusCode, fres.headers);
 		fres.pipe(res, { end : true });
 		
 		//log and broadcast the proxy traffic
