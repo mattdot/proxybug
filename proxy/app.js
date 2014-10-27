@@ -48,9 +48,12 @@ function logRequest(req, res, identity) {
 				headers: res.headers
 			}
 		};
-			
-		publisher.publish("proxied", JSON.stringify(logEntry));
-		console.log(logEntry.request.url + '\n');
+		
+		var serialized = JSON.stringify(logEntry)
+		publisher.publish("proxied", serialized);
+		//console.log(logEntry.request.url + '\n');
+		
+		console.log(serialized + '\n\n');
 		
 		//todo: write entry to docdb
 		//todo: write req/res to blob storage
@@ -73,21 +76,15 @@ function authenticate(req, res) {
 		var raw = b.toString();
 		var parts = raw.split(':');
 		
-		console.log('encoded:' + proxyAuth + '\n');
-		console.log('raw: ' + raw + '\n');
-		
 		var user = {
 			username : parts[0],
 			password : parts[1]
 		};
 		
-		console.log(user);
-		
 		//todo:actually do authorization
 		var authorized = (user.password === 'password!');
 		
 		if(authorized) {
-			console.log(user);
 			return user;
 		}
 	}
