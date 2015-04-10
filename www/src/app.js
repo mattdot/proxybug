@@ -29,6 +29,9 @@ app.use(express.static(path.join(__dirname, '/public'), { index:['index.html'] }
 
 //start the server
 server.listen(port);
+server.on('close', fucntion() {
+  rc.end();
+});
 
 //respond to websocket connections
 io.on('connection', function (socket) {
@@ -45,7 +48,6 @@ io.on('connection', function (socket) {
 
   socket.on("disconnect", function(reason) {
     rc.unsubscribe();
-    rc.end();
   });
 
   rc.subscribe("proxied");
