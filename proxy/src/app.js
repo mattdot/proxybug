@@ -35,17 +35,17 @@ function truncate(str) {
 /// <summary>
 /// Logs information about the request to realtime listeners over redis
 /// and saves information to blob storage for
-/// </summary> 
+/// </summary>
 function logRequest(req, res, identity) {
 	publisher.incr("reqkey", function(err, key) {
 		var logEntry = {
 			key : key,
 			identity : {
-				username : identity.username
+			  username : identity.username
 			},
 			request : {
-		    	url: req.url,
-	        	method: req.method,
+		    url: req.url,
+	      method: req.method,
 				headers: req.headers
 			},
 			response : {
@@ -55,31 +55,36 @@ function logRequest(req, res, identity) {
 				headers: res.headers
 			}
 		};
-		
+
 		var serialized = JSON.stringify(logEntry)
 		publisher.publish("proxied", serialized);
 		//console.log(logEntry.request.url + '\n');
-		
+
 		console.log(serialized + '\n\n');
-		
+
 		//todo: write entry to docdb
 		//todo: write req/res to blob storage
 		blobSvc.createContainerIfNotExists(identity.username, function(error, result, response){
   			if(!error) {
-    			// Container exists and allows 
-    			// anonymous read access to blob 
+    			// Container exists and allows
+    			// anonymous read access to blob
     			// content and metadata within this container
-				
-				var resstream = blobSvc.createWriteStreamToBlockBlob(identity.username, logEntry.key + '/response');
-				res.pipe(resstream, {end:true});
 
-				var reqstream = blobSvc.createWriteStreamToBlockBlob(identity.username, logEntry.key + '/request');
-				res.pipe(reqstream, {end:true});
+				  var resstream = blobSvc.createWriteStreamToBlockBlob(identity.username, logEntry.key + '/response');
+				  res.pipe(resstream, {end:true});
+
+				  var reqstream = blobSvc.createWriteStreamToBlockBlob(identity.username, logEntry.key + '/request');
+				  res.pipe(reqstream, {end:true});
   			}
+        else {
+          logError(req, 'could not create blob container', 400);
+        }
 		});
 	});
 }
 
+///<summary>
+///</summary>
 function logError(req, err, id) {
 	//todo: actually log the error
 	console.log('PROXY_ERROR:' + err + ' ' + req.url);
@@ -87,7 +92,7 @@ function logError(req, err, id) {
 
 /// <summary>
 /// </summary>
-function authenticate(req, res) {	
+function authenticate(req, res) {
 	var proxyAuth = req.headers["proxy-authorization"];
 	if(proxyAuth) {
 		//todo: make this much more robust!
@@ -95,15 +100,15 @@ function authenticate(req, res) {
 		var b = new Buffer(encoded, 'base64');
 		var raw = b.toString();
 		var parts = raw.split(':');
-		
+
 		var user = {
 			username : parts[0],
 			password : parts[1]
 		};
-		
+
 		//todo:actually do authorization
 		var authorized = (user.password === 'password!');
-		
+
 		if(authorized) {
 			return user;
 		}
@@ -111,7 +116,7 @@ function authenticate(req, res) {
 	else {
 		console.log('no proxy-authorization header\n');
 	}
-	
+
 	res.writeHead(407, {
   		'Proxy-Authenticate': 'Basic realm=' + proxyRealm
 	});
@@ -119,37 +124,37 @@ function authenticate(req, res) {
 }
 
 var server = http.createServer(function(req, res){
-	
+
 	var id = authenticate(req, res);
 	if(!id) {
-		return;	
+		return;
 	}
-	
+
 	var uri = url.parse(req.url);
 	var forwardOptions = {
 		hostname : uri.hostname,
 		path: uri.path,
 		port: uri.port || 80,
-		method: uri.method	
+		method: uri.method
 	};
-	
+
 	//todo: prevent localhost or local to proxy
-	
+
 	var freq = http.request(forwardOptions, function(fres) {
 		//copy the response the proxy received to the response to the client
 		res.writeHead(fres.statusCode, fres.headers);
 		fres.pipe(res, { end : true });
-		
+
 		//log and broadcast the proxy traffic
 		logRequest(req, fres, id);
 	});
-	
+
 	freq.on('error', function(error) {
 		//todo: what should we send back to the end user here??
-		
+
 		logError(req, error, id);
 	});
-	
+
 	req.pipe(freq, {end : true});
 });
 
