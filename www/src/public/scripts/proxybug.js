@@ -9,25 +9,14 @@ pbapp.controller('TrafficMonitor', ['$scope', function ($scope) {
         $scope.$apply();
     };
 
+    var topic = 'proxied';
     var socket = io.connect(window.location.protocol + '//' + window.location.host);
-    socket.on('news', function (data) {
+    socket.on("proxy_event", function (data) {
         console.log(data);
         receiveItem(data);
     });
 
-/*
-    setInterval(function () {
-        receiveItem({
-            request: {
-                url: "http://foo.com/some/other/file.png",
-                method: "GET"
-            },
-            response: {
-                contentType: "image/png",
-                status: "200",
-                size: "12345KB"
-            }
-        });
-    }, 5500);
-*/
+    socket.on('connect', function() {
+      socket.emit('join', topic);
+    });
 }]);

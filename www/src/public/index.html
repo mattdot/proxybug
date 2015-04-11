@@ -14,7 +14,7 @@
         <table id="traffic_table">
             <thead>
                 <tr>
-                    <th>URL</th>
+                    <th width="50%">URL</th>
                     <th>Method</th>
                     <th>Size (KB)</th>
                     <th>Status</th>
@@ -22,7 +22,7 @@
                 </tr>
             </thead>
             <tr ng-repeat="item in items">
-                <td>{{item.request.url}}</td>
+                <td class="url" title="{{item.request.url}}">{{item.request.url}}</td>
                 <td>{{item.request.method}}</td>
                 <td>{{item.response.size}}</td>
                 <td>{{item.response.status}}</td>

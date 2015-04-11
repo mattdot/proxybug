@@ -22,4 +22,12 @@ html {
 #traffic_table {
     width: 100%;
     overflow: hidden;
+    table-layout: fixed;
+    white-space: nowrap;
+    word-break: break-all;
+}
+
+#traffic_table .url {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
